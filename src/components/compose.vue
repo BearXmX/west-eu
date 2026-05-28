@@ -133,6 +133,7 @@
 import { onMounted, onUnmounted, ref, nextTick } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { GEOJSON_MAP, TILE_MAP } from '@/resource'
 
 defineProps<{
   current: {
@@ -155,8 +156,6 @@ const activeCountry = ref('')
 const useGoogle = ref(false)
 const showBoundaryLayer = ref(false)
 const showMainCountriesLayer = ref(false)
-
-const baseGeoUrl = 'https://course-code.oss-cn-shanghai.aliyuncs.com/geojson/'
 
 const centerLat = 50.5
 const centerLng = 8.5
@@ -225,14 +224,12 @@ function switchBaseLayer() {
     baseLayer = null
   }
 
-  const url = useGoogle.value
-    ? 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/google-tiles/{z}/{x}/{y}.png'
-    : 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/osm-tiles/{z}/{x}/{y}.png'
+  const url = useGoogle.value ? TILE_MAP['google']! : TILE_MAP['osm']!
 
   baseLayer = L.tileLayer(url, {
     attribution: '',
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
   }).addTo(map)
 
   scheduleUpdateLabels()
@@ -420,15 +417,11 @@ async function loadBoundaryLayer() {
   boundaryAbortController = abortController
 
   try {
-    const response = await fetch(baseGeoUrl + '欧洲西部轮廓线.geojson', {
-      signal: abortController.signal,
+    const data = await new Promise<GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>>(resolve => {
+      setTimeout(() => {
+        resolve(GEOJSON_MAP['欧洲西部轮廓线']!)
+      }, 1000)
     })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
 
     if (abortController.signal.aborted || !map || !showBoundaryLayer.value) return
 
@@ -479,15 +472,11 @@ async function loadMainCountriesLayer() {
   mainCountriesAbortController = abortController
 
   try {
-    const response = await fetch(baseGeoUrl + '欧洲西部主要国家.geojson', {
-      signal: abortController.signal,
+    const data = await new Promise<GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>>(resolve => {
+      setTimeout(() => {
+        resolve(GEOJSON_MAP['欧洲西部主要国家']!)
+      }, 1000)
     })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
 
     if (abortController.signal.aborted || !map || !showMainCountriesLayer.value) return
 
@@ -578,7 +567,7 @@ onMounted(() => {
     zoomControl: true,
     attributionControl: false,
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
     dragging: true,
     scrollWheelZoom: true,
     zoomAnimation: false,

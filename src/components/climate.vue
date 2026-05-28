@@ -136,6 +136,7 @@
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { GEOJSON_MAP, TILE_MAP } from '../resource'
 
 defineProps<{
   current: {
@@ -165,51 +166,49 @@ type DomLabel = {
 type GeoLayerConfig = {
   id: string
   name: string
-  url: string
   visible: boolean
   layer: L.GeoJSON | null
   labels: DomLabel[]
   abortController: AbortController | null
+  data?: GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties> | null
 }
-
-const baseGeoUrl = 'https://course-code.oss-cn-shanghai.aliyuncs.com/geojson/'
 
 const layerList = ref<GeoLayerConfig[]>([
   {
     id: 'europe-climate',
     name: '欧洲西部气候类型',
-    url: baseGeoUrl + '欧洲西部气候类型.geojson',
     visible: false,
     layer: null,
     labels: [],
     abortController: null,
+    data: GEOJSON_MAP['欧洲西部气候类型'],
   },
   {
     id: 'europe-rain',
     name: '欧洲年降水量分布',
-    url: baseGeoUrl + '欧洲年降水量分布.geojson',
     visible: false,
     layer: null,
     labels: [],
     abortController: null,
+    data: GEOJSON_MAP['欧洲年降水量分布'],
   },
   {
     id: 'europe-jan-temp',
     name: '欧洲一月平均气温',
-    url: baseGeoUrl + '欧洲一月平均气温.geojson',
     visible: false,
     layer: null,
     labels: [],
     abortController: null,
+    data: GEOJSON_MAP['欧洲一月平均气温'],
   },
   {
     id: 'europe-jul-temp',
     name: '欧洲七月平均气温',
-    url: baseGeoUrl + '欧洲七月平均气温.geojson',
     visible: false,
     layer: null,
     labels: [],
     abortController: null,
+    data: GEOJSON_MAP['欧洲七月平均气温'],
   },
 ])
 
@@ -530,12 +529,12 @@ function initBaseMap() {
     baseLayer = null
   }
 
-  const url = 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/otm-tiles/{z}/{x}/{y}.png'
+  const url = TILE_MAP['otm']!
 
   baseLayer = L.tileLayer(url, {
     attribution: '',
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
   }).addTo(map)
 }
 
@@ -595,15 +594,11 @@ async function toggleGeoJsonLayer(id: string, visible: boolean) {
   layerConfig.abortController = abortController
 
   try {
-    const response = await fetch(layerConfig.url, {
-      signal: abortController.signal,
+    const data = await new Promise<GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>>(resolve => {
+      setTimeout(() => {
+        resolve(layerConfig.data!)
+      }, 1000)
     })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
 
     if (abortController.signal.aborted || !layerConfig.visible || !map) return
 
@@ -744,7 +739,7 @@ onMounted(() => {
     zoomControl: true,
     attributionControl: false,
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
     dragging: true,
     scrollWheelZoom: true,
     zoomAnimation: false,

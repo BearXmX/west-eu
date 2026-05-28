@@ -76,7 +76,7 @@
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  background-image: url('https://course-code.oss-cn-shanghai.aliyuncs.com/image/欧洲西部封面.png');
+  background-image: url('/image/欧洲西部封面.png');
 
   /* 改：不再用 flex 居中，让内容更稳定 */
   display: block;

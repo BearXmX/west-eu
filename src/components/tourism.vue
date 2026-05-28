@@ -188,6 +188,7 @@
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { IMAGE_MAP, TILE_MAP } from '@/resource'
 
 defineProps<{
   current: {
@@ -254,45 +255,45 @@ const showTourRoutes = ref(true)
 
 const previewImage = ref<TourismImageItem | null>(null)
 
-const tourismImageBaseUrl = 'https://course-code.oss-cn-shanghai.aliyuncs.com/image/'
-
 const naturalTourismList: TourismImageItem[] = [
   {
     title: '阿尔卑斯山',
-    img: tourismImageBaseUrl + '欧洲西部阿尔卑斯山.png',
+    img: IMAGE_MAP['欧洲西部阿尔卑斯山']!,
     desc: '山地景观壮丽，适合滑雪、登山、观光，是欧洲著名自然旅游区。',
   },
   {
     title: '地中海海岸',
-    img: tourismImageBaseUrl + '欧洲西部地中海海岸.png',
+    img: IMAGE_MAP['欧洲西部地中海海岸']!,
     desc: '阳光、沙滩、海湾和滨海城市众多，度假旅游发达。',
   },
   {
     title: '挪威峡湾',
-    img: tourismImageBaseUrl + '欧洲西部挪威峡湾.png',
+    img: IMAGE_MAP['欧洲西部挪威峡湾']!,
     desc: '冰川侵蚀形成峡湾景观，海岸曲折，景色独特。',
   },
   {
     title: '岛屿与海湾',
-    img: tourismImageBaseUrl + '欧洲西部岛屿与海湾.png',
+    img: IMAGE_MAP['欧洲西部岛屿与海湾']!,
     desc: '希腊群岛、意大利沿海、法国南部等地海岸旅游资源丰富。',
   },
 ]
 
+console.log(IMAGE_MAP['欧洲西部意大利威尼斯'])
+
 const humanTourismList: TourismImageItem[] = [
   {
     title: '法国巴黎',
-    img: tourismImageBaseUrl + '欧洲西部法国巴黎.png',
+    img: IMAGE_MAP['欧洲西部法国巴黎']!,
     desc: '埃菲尔铁塔、卢浮宫、凯旋门、塞纳河沿岸等旅游资源集中，是欧洲著名文化旅游城市。',
   },
   {
     title: '意大利威尼斯',
-    img: tourismImageBaseUrl + '欧洲西部意大利威尼斯.png',
+    img: IMAGE_MAP['欧洲西部意大利威尼斯']!,
     desc: '水城风貌独特，运河、桥梁、广场和历史建筑丰富，是欧洲重要人文旅游城市。',
   },
   {
     title: '英国伦敦',
-    img: tourismImageBaseUrl + '欧洲西部英国伦敦.png',
+    img: IMAGE_MAP['欧洲西部英国伦敦']!,
     desc: '大英博物馆、白金汉宫、伦敦塔桥等体现历史与现代城市风貌，文化旅游资源丰富。',
   },
 ]
@@ -497,14 +498,12 @@ function switchBaseLayer() {
     baseLayer = null
   }
 
-  const url = useGoogle.value
-    ? 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/google-tiles/{z}/{x}/{y}.png'
-    : 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/osm-tiles/{z}/{x}/{y}.png'
+  const url = useGoogle.value ? TILE_MAP['google'] : TILE_MAP['osm']
 
-  baseLayer = L.tileLayer(url, {
+  baseLayer = L.tileLayer(url!, {
     attribution: '',
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
   }).addTo(map)
 
   scheduleUpdateLabels()
@@ -820,7 +819,7 @@ onMounted(async () => {
     zoomControl: true,
     attributionControl: false,
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
     dragging: true,
     scrollWheelZoom: true,
     zoomAnimation: false,

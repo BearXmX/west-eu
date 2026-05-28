@@ -176,6 +176,7 @@
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { IMAGE_MAP, TILE_MAP } from '@/resource'
 
 defineProps<{
   current: {
@@ -235,27 +236,25 @@ const showMediterranean = ref(true)
 
 const previewImage = ref<AgriTypeItem | null>(null)
 
-const agriImageBaseUrl = 'https://course-code.oss-cn-shanghai.aliyuncs.com/image/'
-
 const agriTypeList: AgriTypeItem[] = [
   {
     title: '乳畜业',
-    img: agriImageBaseUrl + '欧洲西部乳畜业.png',
+    img: IMAGE_MAP['欧洲西部乳畜业']!,
     desc: '主要分布在英国、法国北部、德国、荷兰、比利时、丹麦等地区，依托温和湿润气候和城市市场发展。',
   },
   {
     title: '现代牧场',
-    img: agriImageBaseUrl + '欧洲西部现代牧场.png',
+    img: IMAGE_MAP['欧洲西部现代牧场']!,
     desc: '机械化、专业化水平较高，注重饲草种植、牲畜管理、冷链运输和乳制品加工。',
   },
   {
     title: '商品谷物农业',
-    img: agriImageBaseUrl + '欧洲西部商品谷物农业.png',
+    img: IMAGE_MAP['欧洲西部商品谷物农业']!,
     desc: '法国巴黎盆地、德国北部平原等地地势平坦，适合发展小麦、大麦等谷物生产。',
   },
   {
     title: '地中海农业',
-    img: agriImageBaseUrl + '欧洲西部地中海农业.png',
+    img: IMAGE_MAP['欧洲西部地中海农业']!,
     desc: '南欧地中海沿岸适合葡萄、橄榄、柑橘等园艺作物生长，农业与旅游、食品加工联系密切。',
   },
 ]
@@ -432,14 +431,12 @@ function switchBaseLayer() {
     baseLayer = null
   }
 
-  const url = useGoogle.value
-    ? 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/google-tiles/{z}/{x}/{y}.png'
-    : 'https://zdys.szjx.ai-study.net/geo-resources-folder/tiles/osm-tiles/{z}/{x}/{y}.png'
+  const url = useGoogle.value ? TILE_MAP['google'] : TILE_MAP['osm']
 
-  baseLayer = L.tileLayer(url, {
+  baseLayer = L.tileLayer(url!, {
     attribution: '',
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
   }).addTo(map)
 
   scheduleUpdateLabels()
@@ -747,7 +744,7 @@ onMounted(async () => {
     zoomControl: true,
     attributionControl: false,
     minZoom: 2,
-    maxZoom: 7,
+    maxZoom: 5,
     dragging: true,
     scrollWheelZoom: true,
     zoomAnimation: false,
